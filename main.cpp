@@ -381,10 +381,20 @@ void play_game() {
     SDL_Event e;
     while (!quit) {
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
-            } else {
-                handleMouseClick(&e);
+            switch (e.type) {
+                case SDL_QUIT:
+                    quit = true;
+                    break;
+                case SDL_KEYDOWN:
+                    if (e.key.keysym.sym == SDLK_p) {
+                        std::cout << grid_to_string() << std::endl;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEMOTION:
+                    handleMouseClick(&e);
+                    break;
             }
         }
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
