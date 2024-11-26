@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -7,6 +8,7 @@
 #include <locale>
 #include <sstream>
 #include <iomanip>
+#include <random>
 
 // Constants
 const int GRID_SIZE = 20;
@@ -35,6 +37,83 @@ struct MenuItem {
     std::string label;
     SDL_Color color;
 };
+
+struct Particle {
+    float x, y;
+    float dx, dy;
+    SDL_Color color;
+    float lifetime;
+    float maxLifetime;
+};
+
+// Global state for particle system
+std::vector<Particle> g_particles;
+Mix_Chunk* g_successSound = nullptr;
+std::random_device g_rd;
+std::mt19937 g_gen(g_rd());
+
+// Initialize sound and particle system
+void initParticleSystem() {
+    // Initialize SDL_mixer for sound
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " 
+                  << Mix_GetError() << std::endl;
+    }
+    
+    // Load success sound
+    g_successSound = Mix_LoadWAV("success.wav");
+    if (!g_successSound) {
+        std::cerr << "Failed to load success sound! SDL_mixer Error: " 
+                  << Mix_GetError() << std::endl;
+    }
+}
+
+void cleanupParticleSystem() {
+    if (g_successSound) {
+        Mix_FreeChunk(g_successSound);
+        g_successSound = nullptr;
+    }
+    g_particles.clear();
+    Mix_CloseAudio();
+}
+
+// Create celebration particles
+void createCelebrationParticles(int centerX, int centerY) {
+    // Play success sound
+    if (g_successSound) {
+        Mix_PlayChannel(-1, g_successSound, 0);
+    }
+
+    // Prepare random distributions
+    std::uniform_real_distribution<> angleDist(0, 2 * M_PI);
+    std::uniform_real_distribution<> speedDist(1.0, 5.0);
+    std::uniform_int_distribution<> colorDist(0, 255);
+
+    // Create burst of colorful particles
+    for (int i = 0; i < 200; ++i) {
+        float angle = angleDist(g_gen);
+        float speed = speedDist(g_gen);
+
+        Particle p;
+        p.x = centerX;
+        p.y = centerY;
+        p.dx = speed * cos(angle);
+        p.dy = speed * sin(angle);
+        
+        // Random vibrant colors
+        p.color = {
+            static_cast<Uint8>(colorDist(g_gen)),
+            static_cast<Uint8>(colorDist(g_gen)),
+            static_cast<Uint8>(colorDist(g_gen)),
+            255
+        };
+
+        p.lifetime = 1.0f;
+        p.maxLifetime = 1.0f;
+        
+        g_particles.push_back(p);
+    }
+}
 
 
 // Global Variables

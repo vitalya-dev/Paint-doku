@@ -4,10 +4,10 @@ TARGET = paint_doku
 
 # Platform-specific linker flags
 ifeq ($(OS), Windows_NT)
-	LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+	LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer
 	BINARY = $(TARGET).exe
 else
-	LDFLAGS = -lSDL2 -lSDL2_ttf
+	LDFLAGS = -lSDL2 -lSDL2_ttf -lSDL2_mixer
 	BINARY = $(TARGET)
 endif
 
