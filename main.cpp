@@ -115,6 +115,45 @@ void createCelebrationParticles(int centerX, int centerY) {
     }
 }
 
+// Update particle positions and lifetimes
+void updateParticles(float deltaTime) {
+    for (auto it = g_particles.begin(); it != g_particles.end();) {
+        it->x += it->dx;
+        it->y += it->dy;
+        it->lifetime -= deltaTime;
+        
+        if (it->lifetime <= 0) {
+            it = g_particles.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+// Render particles to the screen
+void renderParticles(SDL_Renderer* renderer) {
+    for (const auto& particle : g_particles) {
+        // Fade out as lifetime decreases
+        Uint8 alpha = static_cast<Uint8>(255 * (particle.lifetime / particle.maxLifetime));
+        SDL_SetRenderDrawColor(renderer, 
+            particle.color.r, 
+            particle.color.g, 
+            particle.color.b, 
+            alpha);
+        
+        SDL_Rect particleRect = {
+            static_cast<int>(particle.x), 
+            static_cast<int>(particle.y), 
+            3, 3
+        };
+        SDL_RenderFillRect(renderer, &particleRect);
+    }
+}
+
+// Check if particles are still animating
+bool areParticlesActive() {
+    return !g_particles.empty();
+}
 
 // Global Variables
 bool menuVisible = false;
@@ -552,6 +591,13 @@ void play_game() {
     }
 }
 
+void play_celebration() {
+    if (g_particles.empty()) {
+        initParticleSystem();
+    }
+    return;
+}
+
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
         return false;
@@ -587,6 +633,7 @@ int main(int argc, char* argv[]) {
     }
     play_tutorial();
     play_game();
+    play_celebration();
     cleanup();
     return 0;
 }
