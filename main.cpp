@@ -5,6 +5,8 @@
 #include <vector>
 #include <codecvt>
 #include <locale>
+#include <sstream>
+#include <iomanip>
 
 // Constants
 const int GRID_SIZE = 20;
@@ -187,6 +189,28 @@ std::string grid_to_string() {
     return grid_string;
 }
 
+std::string grid_to_hash() {
+    std::ostringstream hash_stream;
+    for (int row = 0; row < GRID_SIZE; row++) {
+        for (int col = 0; col < GRID_SIZE; col++) {
+            hash_stream << grid[row][col].number
+                << grid[row][col].fill_color.r
+                << grid[row][col].fill_color.g
+                << grid[row][col].fill_color.b;
+        }
+    }
+    std::hash<std::string> hasher;
+    size_t hash_value = hasher(hash_stream.str());
+
+    std::stringstream ss;
+    ss << std::hex << std::setw(16) << std::setfill('0') << hash_value;
+    return ss.str();
+}
+
+bool is_grid_solved() {
+    return grid_to_hash() == "86da585336203b69";
+}
+
 // Render the grid and cell numbers
 void renderGrid(SDL_Renderer* renderer, TTF_Font* font) {
     for (int row = 0; row < GRID_SIZE; ++row) {
@@ -218,11 +242,11 @@ void renderGrid(SDL_Renderer* renderer, TTF_Font* font) {
 
 // Render the context menu
 void renderContextMenu(SDL_Renderer* renderer, TTF_Font* font) {
-    SDL_Rect menuRect = {menuX, menuY, MENU_WIDTH, contextMenuItems.size() * MENU_ITEM_HEIGHT};
+    SDL_Rect menuRect = {menuX, menuY, MENU_WIDTH, static_cast<int>(contextMenuItems.size()) * MENU_ITEM_HEIGHT};
     SDL_SetRenderDrawColor(renderer, MENU_BG_COLOR.r, MENU_BG_COLOR.g, MENU_BG_COLOR.b, MENU_BG_COLOR.a);
     SDL_RenderFillRect(renderer, &menuRect);
 
-    for (int i = 0; i < contextMenuItems.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(contextMenuItems.size()); ++i) {
         SDL_Rect itemRect = {menuX, menuY + i * MENU_ITEM_HEIGHT, MENU_WIDTH, MENU_ITEM_HEIGHT};
         SDL_SetRenderDrawColor(renderer, (mouseX >= itemRect.x && mouseX < itemRect.x + itemRect.w && mouseY >= itemRect.y && mouseY < itemRect.y + itemRect.h) ? MENU_HOVER_COLOR.r : MENU_BG_COLOR.r, MENU_BG_COLOR.g, MENU_BG_COLOR.b, MENU_BG_COLOR.a);
         SDL_RenderFillRect(renderer, &itemRect);
@@ -252,7 +276,7 @@ void handleLeftClick() {
                 mouseY >= menuY && mouseY <= menuY + menuHeight) {
 
             int itemIndex = (mouseY - menuY) / MENU_ITEM_HEIGHT;
-            if (itemIndex >= 0 && itemIndex < contextMenuItems.size()) {
+            if (itemIndex >= 0 && itemIndex < static_cast<int>(contextMenuItems.size())) {
                 if (contextMenuItems[itemIndex].label == "Exit") {
                     quit = true;
                 } else {
@@ -314,8 +338,7 @@ void renderText(const std::string& text, int x, int y, SDL_Color color) {
 
 void play_tutorial() {
     SDL_RenderSetLogicalSize(renderer, 900, 600);
-    bool tutorialRunning = true;
-    SDL_Event e;
+
     // Tutorial text split into lines
     std::vector<std::wstring> tutorialLines = {
         utf8_to_wstring("Привет!"),
@@ -324,56 +347,100 @@ void play_tutorial() {
         utf8_to_wstring("Линии могут быть только горизонтальными или вертикальными."),
         utf8_to_wstring("Линии не должны пересекаться друг с другом или самими собой."),
         utf8_to_wstring("Чтобы выбрать цвет, используйте контекстное меню."),
-        utf8_to_wstring("Начнем!")
+        utf8_to_wstring("Что бы стереть цвет, используйте клавишу ctrl."),
+        utf8_to_wstring("Примеры:"),
+        utf8_to_wstring(" "),
+        utf8_to_wstring(" "),
+        utf8_to_wstring("Приступим")
     };
 
+    // Utility to load textures
+    auto loadTexture = [](const std::string& filePath) -> SDL_Texture* {
+        SDL_Surface* surface = SDL_LoadBMP(filePath.c_str());
+        if (!surface) return nullptr;
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+        return texture;
+    };
 
+    SDL_Texture* tutorialImage1 = loadTexture("tutorial_image1.bmp");
+    SDL_Texture* tutorialImage2 = loadTexture("tutorial_image2.bmp");
+
+    // Variables for typewriting effect and control
     size_t currentLine = 0;
     size_t charIndex = 0;
+    bool tutorialRunning = true;
+    SDL_Event event;
 
-    // Clear the screen once and set the background color
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
-    while (tutorialRunning) {
-    	SDL_RenderClear(renderer);
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
+    // Utility to render text and images
+    auto renderTextAndImages = [&](const std::wstring& line, size_t displayCount, int lineIndex) {
+        std::string utf8Text = wstring_to_utf8(line);
+        int textWidth, textHeight;
+        if (TTF_SizeUTF8(font, utf8Text.c_str(), &textWidth, &textHeight) == 0) {
+            textHeight += 12;
+            int x = (900 - textWidth) / 2;
+            renderText(wstring_to_utf8(line.substr(0, displayCount)), std::max(x, 0), 50 + lineIndex * textHeight, BLACK);
+        }
+
+        // Render tutorial images based on lineIndex
+        if (lineIndex >= 8) {
+            SDL_Rect img1Rect = {900 / 2 - 125, 50 + 8 * textHeight - 10, 100, 100};
+            SDL_RenderCopy(renderer, tutorialImage1, nullptr, &img1Rect);
+        }
+        if (lineIndex >= 9) {
+            SDL_Rect img2Rect = {900 / 2 + 25, 50 + 8 * textHeight - 10, 100, 100};
+            SDL_RenderCopy(renderer, tutorialImage2, nullptr, &img2Rect);
+        }
+    };
+
+    // Event handling
+    auto handleEvents = [&]() {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
                 tutorialRunning = false;
                 quit = true;
-            } else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+            } else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
                 if (charIndex < tutorialLines[currentLine].size()) {
-                    charIndex = tutorialLines[currentLine].size();
+                    charIndex = tutorialLines[currentLine].size(); // Skip to the end of the line
                 } else {
                     currentLine++;
                     charIndex = 0;
                 }
                 if (currentLine >= tutorialLines.size()) {
                     tutorialRunning = false;
-                    break;
                 }
             }
         }
-        if (!tutorialRunning)
-        	break;
+    };
 
+    // Main tutorial loop
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    while (tutorialRunning) {
+        handleEvents();
+        if (!tutorialRunning)
+            break;
+
+        // Typewriting effect
         if (currentLine < tutorialLines.size() && charIndex < tutorialLines[currentLine].size()) {
             charIndex++;
         }
-        // Render the current line being typed out
-	    for (size_t i = 0; i <= currentLine; ++i) {
-	        int text_width, text_height;
-	        std::string line_text = wstring_to_utf8(tutorialLines[i].substr(0, i == currentLine ? charIndex : tutorialLines[i].size()));
-	        std::string line_text_full = wstring_to_utf8(tutorialLines[i]);
-	        TTF_SizeUTF8(font, line_text_full.c_str(), &text_width, &text_height);
-	        int x_position = (900 - text_width) / 2;
-	        int y_position = 50 + i * (text_height + 10);
-            std::cout << text_width << std::endl;
-	        renderText(line_text, x_position > 0 ? x_position : 0, y_position, BLACK);
-	    }
+
+        // Clear screen and render text/images
+        SDL_RenderClear(renderer);
+        for (size_t i = 0; i <= currentLine; ++i) {
+            size_t displayCount = (i == currentLine) ? charIndex : tutorialLines[i].size();
+            renderTextAndImages(tutorialLines[i], displayCount, i);
+        }
         SDL_RenderPresent(renderer);
-        SDL_Delay(10); // Adjust the delay to control the typewriting speed
+
+        SDL_Delay(10); // Adjust typewriting speed
     }
+
+    // Cleanup
+    if (tutorialImage1) SDL_DestroyTexture(tutorialImage1);
+    if (tutorialImage2) SDL_DestroyTexture(tutorialImage2);
 }
+
 
 
 void play_game() {
@@ -387,7 +454,7 @@ void play_game() {
                     break;
                 case SDL_KEYDOWN:
                     if (e.key.keysym.sym == SDLK_p) {
-                        std::cout << grid_to_string() << std::endl;
+                        std::cout << grid_to_hash() << std::endl;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
