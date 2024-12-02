@@ -11,10 +11,12 @@
 #include <random>
 
 // Constants
+const double M_PI = 3.14159265358979323846;
 const int GRID_SIZE = 20;
 const int CELL_SIZE = 30;
 const int MENU_WIDTH = 120;
 const int MENU_ITEM_HEIGHT = 30;
+
 
 const SDL_Color WHITE = {255, 255, 255, 255};
 const SDL_Color RED = {255, 0, 0, 255};
