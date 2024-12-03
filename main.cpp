@@ -1,14 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <codecvt>
-#include <locale>
-#include <sstream>
-#include <iomanip>
-#include <random>
 
 // Constants
 const double M_PI = 3.14159265358979323846;
@@ -594,10 +586,54 @@ void play_game() {
 }
 
 void play_celebration() {
+    SDL_RenderSetLogicalSize(renderer, 600, 600);
     if (g_particles.empty()) {
         initParticleSystem();
     }
-    return;
+    createCelebrationParticles(600 / 2, 600 / 2);
+
+    // Render and update particles in a loop for a short duration
+    const Uint32 celebrationDuration = 2000; // 2 seconds
+    Uint32 startTime = SDL_GetTicks();
+    Uint32 currentTime;
+    SDL_Event event;
+
+    while (true) {
+        // Calculate elapsed time
+        currentTime = SDL_GetTicks();
+        Uint32 elapsedTime = currentTime - startTime;
+
+        // Break the loop after the celebration duration
+        if (elapsedTime >= celebrationDuration) {
+            break;
+        }
+
+        // Handle events to prevent the application from freezing
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                quit = true;
+                return;
+            }
+        }
+
+        // Update particles
+        float deltaTime = elapsedTime / 1000.0f; // Convert milliseconds to seconds
+        updateParticles(deltaTime);
+
+        // Clear the screen
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+        SDL_RenderClear(renderer);
+
+        // Render particles
+        renderParticles(renderer);
+
+        // Present the rendered frame
+        SDL_RenderPresent(renderer);
+
+        // Delay to control frame rate
+        SDL_Delay(16); // ~60 FPS
+    }
+    cleanupParticleSystem();
 }
 
 bool init() {
@@ -633,9 +669,10 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error occured: " << SDL_GetError() << std::endl;
         return -1;
     }
+    play_celebration();
     play_tutorial();
     play_game();
-    play_celebration();
+    //play_celebration();
     cleanup();
     return 0;
 }
