@@ -3,6 +3,7 @@
 #include "init.cpp"
 #include "grid.cpp"
 #include "mouse.cpp"
+#include "sound.cpp"
 
 
 
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
     while (!Globals::quit) {
         processEvents(e);
         if (is_grid_solved()) {
-            
+            playMusic(Globals::success_sound, 1); // Play the song once
         }
         renderFrame();
     }

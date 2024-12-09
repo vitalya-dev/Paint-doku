@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <string>
 #include <locale>
 #include <codecvt>
@@ -32,6 +33,14 @@ bool init() {
     Globals::font = TTF_OpenFont("Comic Sans MS.ttf", 24);
     if (!Globals::renderer || !Globals::font) return false;
 
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        return false;
+    }
+    Globals::success_sound = Mix_LoadMUS("success.wav");
+    if (!Globals::success_sound) {
+        return false;
+    }
+
     return true;
 }
 
@@ -40,6 +49,8 @@ void cleanup() {
     TTF_CloseFont(Globals::font);
     SDL_DestroyRenderer(Globals::renderer);
     SDL_DestroyWindow(Globals::window);
+    Mix_FreeMusic(Globals::success_sound);
+    Mix_CloseAudio();
     TTF_Quit();
     SDL_Quit();
 }
