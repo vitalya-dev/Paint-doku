@@ -188,3 +188,20 @@ void renderGrid(SDL_Renderer* renderer, TTF_Font* font) {
         }
     }
 }
+
+void setCellColor(int row, int col, SDL_Color color) {
+    grid[row][col].fill_color = color;
+}
+
+void handleGridClick(int mouseX, int mouseY, SDL_Color selectedColor) {
+    int col = mouseX / CELL_SIZE;
+    int row = mouseY / CELL_SIZE;
+
+    if (col >= 0 && col < GRID_SIZE && row >= 0 && row < GRID_SIZE) {
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+        SDL_Color colorToSet = (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]) ? WHITE : selectedColor;
+
+        // Set the cell's color
+        setCellColor(row, col, colorToSet);
+    }
+}

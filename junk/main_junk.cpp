@@ -13,10 +13,7 @@ const SDL_Color MENU_HOVER_COLOR = {180, 180, 250, 255};
 
 
 
-struct MenuItem {
-    std::string label;
-    SDL_Color color;
-};
+
 
 
 
@@ -25,14 +22,6 @@ Mix_Chunk* g_successSound = nullptr;
 
 // Global Variables
 
-std::vector<MenuItem> contextMenuItems = {
-    {"Fill Black", BLACK},
-    {"Fill Red", RED},
-    {"Fill Green", GREEN},
-    {"Fill Blue", BLUE},
-    {"Fill Orange", ORANGE},
-    {"Exit", BLACK} // Exit menu color
-};
 
 
 
@@ -44,29 +33,6 @@ std::vector<MenuItem> contextMenuItems = {
 
 
 
-
-
-
-// Render the context menu
-void renderContextMenu(SDL_Renderer* renderer, TTF_Font* font) {
-    SDL_Rect menuRect = {menuX, menuY, MENU_WIDTH, static_cast<int>(contextMenuItems.size()) * MENU_ITEM_HEIGHT};
-    SDL_SetRenderDrawColor(renderer, MENU_BG_COLOR.r, MENU_BG_COLOR.g, MENU_BG_COLOR.b, MENU_BG_COLOR.a);
-    SDL_RenderFillRect(renderer, &menuRect);
-
-    for (int i = 0; i < static_cast<int>(contextMenuItems.size()); ++i) {
-        SDL_Rect itemRect = {menuX, menuY + i * MENU_ITEM_HEIGHT, MENU_WIDTH, MENU_ITEM_HEIGHT};
-        SDL_SetRenderDrawColor(renderer, (mouseX >= itemRect.x && mouseX < itemRect.x + itemRect.w && mouseY >= itemRect.y && mouseY < itemRect.y + itemRect.h) ? MENU_HOVER_COLOR.r : MENU_BG_COLOR.r, MENU_BG_COLOR.g, MENU_BG_COLOR.b, MENU_BG_COLOR.a);
-        SDL_RenderFillRect(renderer, &itemRect);
-
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font, contextMenuItems[i].label.c_str(), BLACK);
-        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-        SDL_Rect textRect = {menuX + 5, menuY + i * MENU_ITEM_HEIGHT + 5, textSurface->w, textSurface->h};
-        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-
-        SDL_DestroyTexture(textTexture);
-        SDL_FreeSurface(textSurface);
-    }
-}
 
 // Set cell color with bounds checking
 void setCellColor(int row, int col, SDL_Color color) {

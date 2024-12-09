@@ -17,7 +17,7 @@ all: $(TARGET)
 $(TARGET): main.o
 	$(CXX) -o $(TARGET) main.o $(LDFLAGS)
 
-main.o: main.cpp
+main.o: $(wildcard *.cpp)
 	$(CXX) -c main.cpp $(CXXFLAGS)
 
 clean:
