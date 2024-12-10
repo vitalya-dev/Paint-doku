@@ -163,7 +163,7 @@ SDL_Color invert_color(SDL_Color color) {
 }
 
 // Render the grid and cell numbers
-void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true) {
+void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true, bool draw_numbers=true) {
     for (int row = 0; row < GRID_SIZE; ++row) {
         for (int col = 0; col < GRID_SIZE; ++col) {
             SDL_Rect cellRect = {col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE};
@@ -177,7 +177,7 @@ void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true) 
             }
 
             // Render number if greater than 0
-            if (grid[row][col].number > 0) {
+            if (draw_numbers && grid[row][col].number > 0) {
                 SDL_Color text_color = grid[row][col].number_color;
                 if (colorDistance(grid[row][col].fill_color, text_color) == 0)
                     text_color = invert_color(grid[row][col].fill_color);

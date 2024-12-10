@@ -32,12 +32,20 @@ void processEvents(SDL_Event& e) {
 }
 
 // Helper function to render the frame
-void renderFrame() {
+void renderFrame(GameState game_state) {
     SDL_SetRenderDrawColor(Globals::renderer, 255, 255, 255, 255);
     SDL_RenderClear(Globals::renderer);
-    renderGrid(Globals::renderer, Globals::font);
-    if (Globals::menuVisible) {
-        renderContextMenu(Globals::renderer, Globals::font);
+    switch (game_state) {
+    case GAMEPLAY:
+        renderGrid(Globals::renderer, Globals::font, true, true);
+        if (Globals::menuVisible) {
+            renderContextMenu(Globals::renderer, Globals::font);
+        }
+    case SOLVED:
+        renderGrid(Globals::renderer, Globals::font, false, false);
+        if (Globals::menuVisible) {
+            renderContextMenu(Globals::renderer, Globals::font);
+        }
     }
     SDL_RenderPresent(Globals::renderer);
 }
@@ -61,10 +69,11 @@ int main(int argc, char* argv[]) {
                 playMusic(Globals::success_sound, 1); // Play the song once
                 gameState = SOLVED;
             }
-            renderFrame();
+            break;
         case SOLVED:
-            renderFrame();
+            break;
         }
+        renderFrame(gameState);
     }
 	return 0;
 }
