@@ -5,7 +5,10 @@
 #include "mouse.cpp"
 #include "sound.cpp"
 
-
+enum GameState {
+    GAMEPLAY,
+    SOLVED
+};
 
 // Helper function to handle events
 void processEvents(SDL_Event& e) {
@@ -48,13 +51,20 @@ int main(int argc, char* argv[]) {
 
     SDL_RenderSetLogicalSize(Globals::renderer, 600, 600);
     SDL_Event e;
+    GameState gameState = GAMEPLAY; // Initial state of the game
 
     while (!Globals::quit) {
         processEvents(e);
-        if (is_grid_solved()) {
-            playMusic(Globals::success_sound, 1); // Play the song once
+        switch (gameState) {
+        case GAMEPLAY:
+            if (is_grid_solved()) {
+                playMusic(Globals::success_sound, 1); // Play the song once
+                gameState = SOLVED;
+            }
+            renderFrame();
+        case SOLVED:
+            renderFrame();
         }
-        renderFrame();
     }
 	return 0;
 }

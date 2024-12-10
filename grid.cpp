@@ -163,16 +163,18 @@ SDL_Color invert_color(SDL_Color color) {
 }
 
 // Render the grid and cell numbers
-void renderGrid(SDL_Renderer* renderer, TTF_Font* font) {
+void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true) {
     for (int row = 0; row < GRID_SIZE; ++row) {
         for (int col = 0; col < GRID_SIZE; ++col) {
             SDL_Rect cellRect = {col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE};
             SDL_SetRenderDrawColor(renderer, grid[row][col].fill_color.r, grid[row][col].fill_color.g, grid[row][col].fill_color.b, 255);
             SDL_RenderFillRect(renderer, &cellRect);
 
-            // Draw cell borders
-            SDL_SetRenderDrawColor(renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a);
-            SDL_RenderDrawRect(renderer, &cellRect);
+            // Draw cell borders if requested
+            if (draw_borders) {
+                SDL_SetRenderDrawColor(renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a);
+                SDL_RenderDrawRect(renderer, &cellRect);
+            }
 
             // Render number if greater than 0
             if (grid[row][col].number > 0) {
