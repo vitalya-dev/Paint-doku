@@ -11,7 +11,7 @@ enum GameState {
 };
 
 // Helper function to handle events
-void processEvents(SDL_Event& e) {
+void processEvents(SDL_Event& e, GameState game_state) {
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
             case SDL_QUIT:
@@ -25,7 +25,9 @@ void processEvents(SDL_Event& e) {
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
             case SDL_MOUSEMOTION:
-                handleMouseClick(&e);
+                if (game_state == GAMEPLAY) {
+                    handleMouseClick(&e);
+                }
                 break;
         }
     }
@@ -62,7 +64,7 @@ int main(int argc, char* argv[]) {
     GameState gameState = GAMEPLAY; // Initial state of the game
 
     while (!Globals::quit) {
-        processEvents(e);
+        processEvents(e, gameState);
         switch (gameState) {
         case GAMEPLAY:
             if (is_grid_solved()) {
