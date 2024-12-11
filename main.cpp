@@ -43,11 +43,13 @@ void renderFrame(GameState game_state) {
         if (Globals::menuVisible) {
             renderContextMenu(Globals::renderer, Globals::font);
         }
+        break;
     case SOLVED:
         renderGrid(Globals::renderer, Globals::font, false, false);
         if (Globals::menuVisible) {
             renderContextMenu(Globals::renderer, Globals::font);
         }
+        break;
     }
     SDL_RenderPresent(Globals::renderer);
 }
