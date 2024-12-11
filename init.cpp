@@ -37,7 +37,8 @@ bool init() {
         return false;
     }
     Globals::success_sound = Mix_LoadMUS("success.wav");
-    if (!Globals::success_sound) {
+    Globals::click_sound = Mix_LoadWAV("click.wav");
+    if (!Globals::success_sound && !Globals::click_sound) {
         return false;
     }
 
@@ -50,6 +51,7 @@ void cleanup() {
     SDL_DestroyRenderer(Globals::renderer);
     SDL_DestroyWindow(Globals::window);
     Mix_FreeMusic(Globals::success_sound);
+    Mix_FreeChunk(Globals::click_sound);
     Mix_CloseAudio();
     TTF_Quit();
     SDL_Quit();

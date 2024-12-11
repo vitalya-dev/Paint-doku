@@ -3,9 +3,11 @@
 #include "globals.cpp"
 #include "context_menu.cpp"
 #include "grid.cpp"
+#include "sound.cpp"
 
 // Handle left mouse button click
 void handleLeftClick() {
+    playSoundEffect(Globals::click_sound);  
     if (Globals::menuVisible) {
         MenuItem* hoveredItem = getHoveredMenuItem(Globals::mouseX, Globals::mouseY);
         if (hoveredItem) {
@@ -24,6 +26,7 @@ void handleLeftClick() {
 
 // Handle right mouse button click to open the context menu
 void handleRightClick() {
+    playSoundEffect(Globals::click_sound);
     Globals::menuVisible = true;
     Globals::menuX = Globals::mouseX;
     Globals::menuY = Globals::mouseY;
