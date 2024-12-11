@@ -161,6 +161,35 @@ SDL_Color invert_color(SDL_Color color) {
     return inverted_color;
 }
 
+SDL_Color darker_color(const SDL_Color& color, int amount = 50) {
+    SDL_Color darker_color = color;
+    darker_color.r = std::max(0, color.r - amount);
+    darker_color.g = std::max(0, color.g - amount);
+    darker_color.b = std::max(0, color.b - amount);
+    return darker_color;
+}
+SDL_Color brighter_color(const SDL_Color& color, int amount = 50) {
+    SDL_Color brighter_color = color;
+    brighter_color.r = std::min(255, color.r + amount);
+    brighter_color.g = std::min(255, color.g + amount);
+    brighter_color.b = std::min(255, color.b + amount);
+    return brighter_color;
+}
+
+SDL_Color adjust_text_color(const SDL_Color& fill_color, int adjustment_amount = 100) {
+    // Calculate perceived brightness
+    int brightness = static_cast<int>(0.299 * fill_color.r + 0.587 * fill_color.g + 0.114 * fill_color.b);
+
+    // Adjust text color
+    if (brightness < 64) {
+        // Background is dark, make text brighter
+        return brighter_color(fill_color, adjustment_amount);
+    } else {
+        // Background is very bright, make text darker
+        return darker_color(fill_color, adjustment_amount);
+    } 
+}
+
 // Render the grid and cell numbers
 void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true, bool draw_numbers=true) {
     for (int row = 0; row < GRID_SIZE; ++row) {
@@ -179,7 +208,7 @@ void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true, 
             if (draw_numbers && grid[row][col].number > 0) {
                 SDL_Color text_color = grid[row][col].number_color;
                 if (colorDistance(grid[row][col].fill_color, text_color) == 0)
-                    text_color = invert_color(grid[row][col].fill_color);
+                    text_color = adjust_text_color(grid[row][col].fill_color);
                 SDL_Surface* textSurface = TTF_RenderText_Solid(font, std::to_string(grid[row][col].number).c_str(), text_color);
                 SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
                 SDL_Rect textRect = {col * CELL_SIZE + (CELL_SIZE - textSurface->w) / 2, row * CELL_SIZE + (CELL_SIZE - textSurface->h) / 2, textSurface->w, textSurface->h};
