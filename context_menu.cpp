@@ -7,7 +7,7 @@
 #include "colors.cpp"
 #include "globals.cpp"
 
-const int MENU_WIDTH = 45;
+const int MENU_WIDTH = 45; 
 const int MENU_ITEM_HEIGHT = 45;
 
 const SDL_Color MENU_BG_COLOR = {200, 200, 200, 255};

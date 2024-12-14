@@ -7,7 +7,6 @@
 
 // Handle left mouse button click
 void handleLeftClick() {
-    playSoundEffect(Globals::click_sound);  
     if (Globals::menuVisible) {
         MenuItem* hoveredItem = getHoveredMenuItem(Globals::mouseX, Globals::mouseY);
         if (hoveredItem) {
@@ -20,13 +19,13 @@ void handleLeftClick() {
         // Close the menu after handling the click
         Globals::menuVisible = false;
     } else {
+        playSoundEffect(Globals::click_sound);
         handleGridClick(Globals::mouseX, Globals::mouseY, Globals::selectedColor);
     }
 }
 
 // Handle right mouse button click to open the context menu
 void handleRightClick() {
-    playSoundEffect(Globals::click_sound);
     Globals::menuVisible = true;
     Globals::menuX = Globals::mouseX;
     Globals::menuY = Globals::mouseY;
