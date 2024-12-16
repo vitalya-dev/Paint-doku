@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <unordered_map>
 #include "colors.cpp"
 
 const int GRID_SIZE = 20;
