@@ -107,6 +107,34 @@ Cell grid[GRID_SIZE][GRID_SIZE] = {
     }
 };
 
+std::unordered_map<std::string, SDL_Texture*> numberTextures;
+std::string generateKey(int number, SDL_Color color) {
+    return std::to_string(number) + "_" + 
+           std::to_string(color.r) + "_" + 
+           std::to_string(color.g) + "_" + 
+           std::to_string(color.b);
+}
+
+SDL_Texture* getOrCreateTexture(SDL_Renderer* renderer, TTF_Font* font, int number, SDL_Color color) {
+    std::string key = generateKey(number, color);
+
+    // Check if texture already exists
+    if (numberTextures.find(key) != numberTextures.end()) {
+        return numberTextures[key];
+    }
+
+    // Create new texture
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, std::to_string(number).c_str(), color);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+
+    // Store texture in the map
+    numberTextures[key] = textTexture;
+    return textTexture;
+}
+
+
+
 std::string grid_to_string() {
     std::string grid_string = "Grid State:\n";
     for (int row = 0; row < GRID_SIZE; row++) {
@@ -141,7 +169,7 @@ std::string grid_to_hash() {
 }
 
 bool is_grid_solved() {
-    return grid_to_hash() == "86da585336203b69";
+    return grid_to_hash() == "f29469d844375bc0";
 }
 
 // Helper function to calculate color distanc
@@ -209,12 +237,20 @@ void renderGrid(SDL_Renderer* renderer, TTF_Font* font, bool draw_borders=true, 
                 SDL_Color text_color = grid[row][col].number_color;
                 if (colorDistance(grid[row][col].fill_color, text_color) == 0)
                     text_color = adjust_text_color(grid[row][col].fill_color);
-                SDL_Surface* textSurface = TTF_RenderText_Solid(font, std::to_string(grid[row][col].number).c_str(), text_color);
-                SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-                SDL_Rect textRect = {col * CELL_SIZE + (CELL_SIZE - textSurface->w) / 2, row * CELL_SIZE + (CELL_SIZE - textSurface->h) / 2, textSurface->w, textSurface->h};
+                 // Get or create texture
+                SDL_Texture* textTexture = getOrCreateTexture(renderer, font, grid[row][col].number, text_color);
+
+                // Get texture dimensions
+                int texWidth, texHeight;
+                SDL_QueryTexture(textTexture, NULL, NULL, &texWidth, &texHeight);
+
+                SDL_Rect textRect = {
+                    col * CELL_SIZE + (CELL_SIZE - texWidth) / 2,
+                    row * CELL_SIZE + (CELL_SIZE - texHeight) / 2,
+                    texWidth,
+                    texHeight
+                };
                 SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-                SDL_DestroyTexture(textTexture);
-                SDL_FreeSurface(textSurface);
             }
         }
     }
@@ -224,11 +260,16 @@ void setCellColor(int row, int col, SDL_Color color) {
     grid[row][col].fill_color = color;
 }
 
+SDL_Color getCellColor(int row, int col) {
+    return grid[row][col].fill_color;
+}
+
 void handleGridClick(int mouseX, int mouseY, SDL_Color selectedColor) {
     int col = mouseX / CELL_SIZE;
     int row = mouseY / CELL_SIZE;
 
     if (col >= 0 && col < GRID_SIZE && row >= 0 && row < GRID_SIZE) {
+        SDL_Color currentColor = getCellColor(row, col);
         const Uint8* state = SDL_GetKeyboardState(NULL);
         SDL_Color colorToSet = (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]) ? WHITE : selectedColor;
 

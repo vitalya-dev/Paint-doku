@@ -1,10 +1,13 @@
 CXX = clang++ 
-CXXFLAGS =  -IC:/msys64/ucrt64/include/SDL2 -Dmain=SDL_main -fuse-ld=lld -Wall
-TARGET = paint_doku
+CXXFLAGS =  -IC:/msys64/clang64/include/SDL2 -Dmain=SDL_main -Wall -Oz -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-stack-protector  
+TARGET = Paint-doku
+
+# Use pkg-config to retrieve the static linker flags
+PKG_CONFIG_FLAGS = --static --libs SDL2 SDL2_ttf SDL2_mixer
 
 # Platform-specific linker flags
 ifeq ($(OS), Windows_NT)
-	LDFLAGS = -LC:/msys64/ucrt64/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -mwindows
+	LDFLAGS = -static $(shell pkg-config $(PKG_CONFIG_FLAGS))  -Wl,--gc-sections -s
 	BINARY = $(TARGET).exe
 else
 	LDFLAGS = -lSDL2 -lSDL2_ttf -lSDL2_mixer
@@ -16,11 +19,14 @@ endif
 all: $(TARGET)
 	./$(BINARY)
 
-$(TARGET): main.o
-	$(CXX) -o $(TARGET) main.o $(LDFLAGS)
+$(TARGET): main.o resources.o
+	$(CXX) -o $(TARGET) main.o resources.o $(LDFLAGS)
 
 main.o: $(wildcard *.cpp) force
 	$(CXX) -c main.cpp $(CXXFLAGS)
+
+resources.o: resources.rc force
+	windres resources.rc -O coff -o resources.o
 
 clean:
 	rm -f $(TARGET) *.o

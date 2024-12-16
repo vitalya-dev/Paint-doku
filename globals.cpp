@@ -9,7 +9,7 @@ namespace Globals {
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
-	Mix_Music* success_sound = nullptr;
+	Mix_Chunk* success_sound = nullptr;
 	Mix_Chunk* click_sound = nullptr;
 
 
