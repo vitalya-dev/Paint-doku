@@ -33,6 +33,7 @@ void processEvents(SDL_Event& e, GameState game_state) {
     }
 }
 
+
 // Helper function to render the frame
 void renderFrame(GameState game_state) {
     SDL_SetRenderDrawColor(Globals::renderer, 255, 255, 255, 255);
@@ -53,6 +54,7 @@ void renderFrame(GameState game_state) {
     }
     SDL_RenderPresent(Globals::renderer);
 }
+
 
 
 int main(int argc, char* argv[]) {

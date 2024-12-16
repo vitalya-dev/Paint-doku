@@ -24,7 +24,6 @@ std::vector<MenuItem> contextMenuItems = {
     {"Fill Green", GREEN},
     {"Fill Blue", BLUE},
     {"Fill Orange", ORANGE},
-    {"Fill White", WHITE} // Exit menu color
 };
 
 

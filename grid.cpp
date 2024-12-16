@@ -269,11 +269,11 @@ void handleGridClick(int mouseX, int mouseY, SDL_Color selectedColor) {
     int row = mouseY / CELL_SIZE;
 
     if (col >= 0 && col < GRID_SIZE && row >= 0 && row < GRID_SIZE) {
-        SDL_Color currentColor = getCellColor(row, col);
-        const Uint8* state = SDL_GetKeyboardState(NULL);
-        SDL_Color colorToSet = (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]) ? WHITE : selectedColor;
-
-        // Set the cell's color
-        setCellColor(row, col, colorToSet);
+        const SDL_Color currentColor = getCellColor(row, col);
+        if (colorDistance(currentColor, WHITE) == 0) {
+            setCellColor(row, col, selectedColor);
+        } else {
+            setCellColor(row, col, WHITE);
+        }
     }
 }
