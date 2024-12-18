@@ -170,7 +170,7 @@ std::string grid_to_hash() {
 }
 
 bool is_grid_solved() {
-    return grid_to_hash() == "f29469d844375bc0";
+    return grid_to_hash() == "86da585336203b69";
 }
 
 // Helper function to calculate color distanc

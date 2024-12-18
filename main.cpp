@@ -92,9 +92,9 @@ int main(int argc, char* argv[]) {
         renderFrame(gameState);
 
         Uint32 frameTime = SDL_GetTicks() - frameStart;
-        std::cout << "Frame time: " << frameTime << std::endl;
+        //std::cout << "Frame time: " << frameTime << std::endl;
         if (frameDelay > frameTime) {
-            std::cout << "Delay: " << frameDelay << std::endl;
+            //std::cout << "Delay: " << frameDelay << std::endl;
             SDL_Delay(frameDelay - frameTime);
         }
 
