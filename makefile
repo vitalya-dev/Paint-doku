@@ -7,7 +7,7 @@ PKG_CONFIG_FLAGS = --static --libs-only-l SDL2 SDL2_ttf SDL2_mixer
 
 # Platform-specific linker flags
 ifeq ($(OS), Windows_NT)
-	LDFLAGS = -static $(shell pkg-config $(PKG_CONFIG_FLAGS)) -mwindows
+	LDFLAGS = -static $(shell pkg-config $(PKG_CONFIG_FLAGS)) -mwindows 
 	BINARY = $(TARGET).exe
 else
 	LDFLAGS = -lSDL2 -lSDL2_ttf -lSDL2_mixer

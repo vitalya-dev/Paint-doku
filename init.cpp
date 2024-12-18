@@ -11,6 +11,28 @@
 
 #include "click_sound.h"
 #include "success_sound.h"
+#include "font_data.h"
+
+TTF_Font* LoadFontFromMemory(int ptsize) {
+    // Create an SDL_RWops from the static byte array
+    SDL_RWops* rw = SDL_RWFromMem((void*)comic_sans_font_data, sizeof(comic_sans_font_data));
+    
+    if (!rw) {
+        SDL_Log("Failed to create RWops: %s", SDL_GetError());
+        return nullptr;
+    }
+
+    // Open font from the RWops
+    TTF_Font* font = TTF_OpenFontRW(rw, 1, ptsize);  // 1 means SDL_RWops will be closed after use
+    
+    if (!font) {
+        SDL_Log("Failed to load font: %s", TTF_GetError());
+        return nullptr;
+    }
+
+    return font;
+}
+
 
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
@@ -33,7 +55,7 @@ bool init() {
     if (!Globals::window) return false;
 
     Globals::renderer = SDL_CreateRenderer(Globals::window, -1, SDL_RENDERER_ACCELERATED);
-    Globals::font = TTF_OpenFont("C:\\Windows\\Fonts\\arial.ttf", 24);
+    Globals::font = LoadFontFromMemory(24);
     if (!Globals::renderer || !Globals::font) return false;
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {

@@ -4,6 +4,7 @@
 #include "grid.cpp"
 #include "mouse.cpp"
 #include "sound.cpp"
+#include <windows.h>  // For MessageBox
 
 enum GameState {
     GAMEPLAY,
@@ -55,14 +56,18 @@ void renderFrame(GameState game_state) {
     SDL_RenderPresent(Globals::renderer);
 }
 
-
+// Helper function to display an error message box
+void showErrorDialog(const std::string& message) {
+    MessageBox(NULL, message.c_str(), "Error", MB_OK | MB_ICONERROR);
+}
 
 int main(int argc, char* argv[]) {
     const int FPS = 60;
     const int frameDelay = 1000 / FPS;
 
 	if (!init()) {
-        std::cerr << "Error occured: " << SDL_GetError() << std::endl;
+        std::string errorMessage = "Error occurred during initialization: " + std::string(SDL_GetError());
+        showErrorDialog(errorMessage);
         return -1;
     }
     std::cout << "frameDelay: " << frameDelay << std::endl;
