@@ -33,6 +33,21 @@ TTF_Font* LoadFontFromMemory(int ptsize) {
     return font;
 }
 
+bool InitSound() {
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        return false;
+    }
+
+    Globals::success_sound = Mix_QuickLoad_WAV(success_sound);
+    Globals::click_sound = Mix_QuickLoad_WAV(click_sound);
+
+    if (!Globals::success_sound || !Globals::click_sound) {
+        Mix_CloseAudio();
+        return false;
+    }
+    return true;
+}
+
 
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1) {
@@ -58,15 +73,12 @@ bool init() {
     Globals::font = LoadFontFromMemory(24);
     if (!Globals::renderer || !Globals::font) return false;
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        return false;
+    // Initialize sound subsystem
+    if (!InitSound()) {
+        Globals::success_sound = nullptr;
+        Globals::click_sound = nullptr;
+        // Optionally log or handle sound initialization failure here
     }
-    Globals::success_sound = Mix_QuickLoad_WAV(success_sound);
-    Globals::click_sound = Mix_QuickLoad_WAV(click_sound);
-    if (!Globals::success_sound && !Globals::click_sound) {
-        return false;
-    }
-
     return true;
 }
 

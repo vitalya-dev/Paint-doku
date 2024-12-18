@@ -5,7 +5,7 @@
 
 
 void playSoundEffect(Mix_Chunk* sound) {
-    if (Mix_PlayChannel(-1, sound, 0) == -1) {
+    if (sound && Mix_PlayChannel(-1, sound, 0) == -1) {
         std::cerr << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 }

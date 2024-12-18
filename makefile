@@ -30,6 +30,6 @@ resources.o: resources.rc force
 	windres resources.rc  -O coff -o resources.o
 
 clean:
-	rm -f $(TARGET) *.o
+	rm -f  *.o
 
 force:
